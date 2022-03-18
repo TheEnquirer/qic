@@ -1,5 +1,8 @@
 import scipy
 import numpy as np
+from itertools import combinations
+
+
 
 from functools import partial
 
@@ -48,7 +51,7 @@ def tenz(arr):
 # functions
 # G1 = I8 ⊗ TOF ⊗ I4,
 g1 = tenz([i(8), tof, i(4)])
-
+# print(list(g1))
 # G2 = TOF ⊗ I2 ⊗ TOF ⊗ I2,
 g2 = tenz([tof, i(2), tof, i(2)])
 
@@ -84,9 +87,42 @@ g12 = tenz([i(8), s, i(8)])
 
 funcs = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12]
 
+
+# print([list(x) for x in funcs[:1]])
+
 for i in funcs:
     if len(i) != 256 or len(i[0]) != 256:
         print("not 256!")
+
+    eig = np.linalg.eigvals(i)
+    if list(eig).count(1) + list(eig).count(-1) != 256:
+        print("eigenvals other than -1 or 1!")
+
+# M=G1G6G7G8G3G2G9G10G4G11G12G3G5G12
+M = [g1, g6, g7, g8, g3, g2, g9, g10, g4, g11, g12, g3, g5, g12]
+
+seed = tenz(np.array([[0,0], [0,0], [0,1],[1,0],[0,1], [0,0],[0,0],[0,0],[0,0]]))
+print(seed)
+
+
+# seed = [[0, 0, 0], [0,0,1], [0,1,0], [0,1,1], [1,0,0], [1,0,1], [1,1,0], [1,1,1]]
+# # inp = [0, , _, _, 0, 0, 0, 0]
+# inps = []
+# for j in seed:
+#     inp = [0, *j, 0, 0, 0, 0]
+#     inps.append(inp)
+
+# print(inps)
+# inps = tenz(np.array(inps))
+# print(inps)
+
+    # for i in M[::-1]:
+    #     inp = np.matmul(i, inp)
+
+
+
+
+
 
 
 # g1 = (i(8) |tensor| tof)
