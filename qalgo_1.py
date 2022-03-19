@@ -1,24 +1,6 @@
 import scipy
 import numpy as np
-from itertools import combinations
-
-
-
-from functools import partial
-
-class Infix(object):
-    def __init__(self, func):
-        self.func = func
-    def __or__(self, other):
-        return self.func(other)
-    def __ror__(self, other):
-        return Infix(partial(self.func, other))
-    def __call__(self, v1, v2):
-        return self.func(v1, v2)
-# @Infix
-# def t(x, y):
-#     # return np.kron(x[0], y[0])
-#     return np.kron(x, y)
+import itertools
 
 tensor = np.kron
 i = np.identity
@@ -26,10 +8,12 @@ i = np.identity
 # blocks
 x = np.array([[0, 1],
               [1, 0]])
+
 s = np.array([[1, 0, 0, 0],
               [0, 0, 1, 0],
               [0, 1, 0, 0],
               [0, 0, 0, 1]])
+
 tof = np.array([
         [1,0,0,0,0,0,0,0],
         [0,1,0,0,0,0,0,0],
@@ -45,8 +29,6 @@ def tenz(arr):
     for i in arr[1:]:
         cur = tensor(cur, i)
     return cur
-
-
 
 # functions
 # G1 = I8 ⊗ TOF ⊗ I4,
@@ -87,9 +69,7 @@ g12 = tenz([i(8), s, i(8)])
 
 funcs = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12]
 
-
-# print([list(x) for x in funcs[:1]])
-
+# checks
 for i in funcs:
     if len(i) != 256 or len(i[0]) != 256:
         print("not 256!")
@@ -98,44 +78,25 @@ for i in funcs:
     if list(eig).count(1) + list(eig).count(-1) != 256:
         print("eigenvals other than -1 or 1!")
 
+# evaluating
 # M=G1G6G7G8G3G2G9G10G4G11G12G3G5G12
 M = [g1, g6, g7, g8, g3, g2, g9, g10, g4, g11, g12, g3, g5, g12]
 
-seed = tenz(np.array([[0,0], [0,0], [0,1],[1,0],[0,1], [0,0],[0,0],[0,0],[0,0]]))
-print(seed)
+# zero = [0, 1]
+# one = [1, 0]
+
+zero = [[0], [1]]
+one = [[1], [0]]
 
 
-# seed = [[0, 0, 0], [0,0,1], [0,1,0], [0,1,1], [1,0,0], [1,0,1], [1,1,0], [1,1,1]]
-# # inp = [0, , _, _, 0, 0, 0, 0]
-# inps = []
-# for j in seed:
-#     inp = [0, *j, 0, 0, 0, 0]
-#     inps.append(inp)
+gen = list(itertools.product([zero, one], repeat=3))
 
-# print(inps)
-# inps = tenz(np.array(inps))
-# print(inps)
-
-    # for i in M[::-1]:
-    #     inp = np.matmul(i, inp)
+for ii in gen:
+    inp = tenz(np.array([zero, *ii, zero, zero, zero, zero]))
+    for i in M[::-1]:
+        inp = np.matmul(i, inp)
 
 
-
-
-
-
-
-# g1 = (i(8) |tensor| tof)
-# l = np.kron(i(8), tof)
-# print(l |tensor| i(4))
-# print(g1)
-# l = tensor(tof, i(4))
-# g1 = tensor(i(8), tensor(tof, i(4)))
-# g1 = [i(8)] |t| ([tof] |t| [i(4)])
-
-# G2 = TOF ⊗ I2 ⊗ TOF ⊗ I2,
-# g2 = ((
-    # ([tof] |t| [i(2)]) |t| [tof]) |t| [i(2)]
-# g2 = ([tof] |t| [i(2)]) |t| [tof]
-
+    print(inp[5])
+print(inp)
 
